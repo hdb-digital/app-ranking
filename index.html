@@ -137,6 +137,34 @@ a { color: var(--red); }
 }
 .f-group { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); min-width: 0; }
 .f-bucket { margin-left: auto; }
+.f-cap { display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.f-err { color: var(--red); }
+/* Khoảng ngày: nút nhanh + hai ô Từ ngày / đến ngày (gõ dd/mm/yyyy hoặc chọn trên lịch) – giống ggmap-dashboard */
+.range { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.range-all {
+  font: 600 14px/1 var(--font-body); color: var(--grey); background: var(--grey-10); border: 0; border-radius: 999px;
+  min-height: 42px; padding: 0 16px; cursor: pointer; white-space: nowrap; transition: background-color .15s, color .15s;
+}
+.range-all:hover { background: var(--grey-20); }
+.range-all[aria-pressed="true"] { background: var(--red); color: var(--white); }
+.date {
+  position: relative; display: flex; align-items: center; gap: 5px; min-height: 42px; padding: 0 5px 0 12px;
+  background: var(--white); border: 1.5px solid var(--grey-20); border-radius: 999px; transition: border-color .2s, box-shadow .2s;
+}
+.date:focus-within { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-10); }
+.date.is-invalid { border-color: var(--red); }
+.date label { font-size: 14px; font-weight: 400; color: var(--grey); white-space: nowrap; cursor: text; }
+.date input[type=text] {
+  font: 400 15px/1.2 var(--font-body); font-variant-numeric: tabular-nums; color: var(--grey);
+  flex: 1 1 84px; width: 84px; min-width: 0; border: 0; background: none; padding: 0;
+}
+.date input[type=text]:focus { outline: none; }
+.date input[type=text]::placeholder { color: var(--grey-70); opacity: 1; }
+.date-pick { display: grid; place-items: center; width: 28px; height: 28px; flex: none; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.date-pick svg { width: 17px; height: 17px; fill: var(--grey); }
+.date-pick:hover { background: var(--red-10); }
+.date-pick:hover svg { fill: var(--red); }
+.date-native { position: absolute; left: 0; bottom: 0; width: 100%; height: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; }
 
 /* Nhóm nút chọn: dạng viên thuốc, nút đang chọn màu đỏ */
 .seg { display: inline-flex; gap: 2px; padding: 3px; background: var(--grey-10); border-radius: 999px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
@@ -242,6 +270,31 @@ button.chip:hover { border-color: var(--grey-50); }
 .chip-x:hover { background: var(--red-10); }
 .chip-x:hover svg { fill: var(--red); }
 .chip-sep { width: 1px; height: 24px; background: var(--grey-20); margin-inline: 4px; }
+.chip svg.ln { width: 18px; height: 6px; flex: none; }
+
+/* Chọn đối thủ cho biểu đồ thứ hạng */
+.cmp-wrap { position: relative; }
+.cmp-pop {
+  position: absolute; z-index: 40; top: calc(100% + 8px); left: 0; width: min(400px, calc(100vw - 32px));
+  background: var(--white); border: 1px solid var(--grey-20); border-radius: 18px; box-shadow: var(--lift); padding: 14px;
+}
+.cmp-pop input[type=search] {
+  width: 100%; font: 400 15px/1.2 var(--font-body); color: var(--grey); background: var(--white);
+  border: 1.5px solid var(--grey-20); border-radius: 999px; padding: 10px 14px; min-height: 42px;
+}
+.cmp-pop input[type=search]:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px var(--red-10); }
+.cmp-quick { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 8px; }
+.cmp-quick button { font: 600 13px/1 var(--font-body); color: var(--grey); background: var(--grey-10); border: 0; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.cmp-quick button:hover { background: var(--red-10); color: var(--red); }
+.cmp-list { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; }
+.cmp-list label { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+.cmp-list label:hover { background: #FDF6F6; }
+.cmp-list label.dis { opacity: .45; cursor: not-allowed; }
+.cmp-list input { width: 18px; height: 18px; flex: none; accent-color: var(--red); }
+.cmp-list img { width: 24px; height: 24px; border-radius: 6px; flex: none; box-shadow: 0 0 0 1px var(--grey-20); }
+.cmp-list .rk { width: 34px; flex: none; color: var(--grey-70); font-variant-numeric: tabular-nums; }
+.cmp-list .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmp-foot { margin-top: 8px; font-size: 13px; color: var(--muted); }
 
 /* Bảng */
 .tbl-wrap { overflow-x: auto; border: 1px solid var(--grey-20); border-radius: 16px; }
@@ -307,6 +360,8 @@ tr.hd .dbar span.b { background: var(--band-lr); }
   .f-bucket { margin-left: 0; }
 }
 @media (max-width: 760px) {
+  .range-all { flex: 1 1 auto; }
+  .date { flex: 1 1 190px; }
   .header-inner { min-height: 60px; gap: 10px; }
   .brand { gap: 10px; padding-block: 12px; }
   .brand-logo { height: 26px; }
@@ -358,6 +413,8 @@ tr.hd .dbar span.b { background: var(--band-lr); }
   <symbol id="star" viewBox="0 0 24 24"><path d="M12 2.5l2.6 6.1 6.6.6-5 4.4 1.5 6.5L12 16.6l-5.7 3.5 1.5-6.5-5-4.4 6.6-.6z"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M10.8 3h2.4v9.2l3.6-3.6 1.7 1.7L12 16.8l-6.5-6.5 1.7-1.7 3.6 3.6zM4 18.6h16V21H4z"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm-1.2 8.5V17h2.4v-6.5zm1.2-4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2zM5 9.5V19h14V9.5z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M10.8 4h2.4v6.8H20v2.4h-6.8V20h-2.4v-6.8H4v-2.4h6.8z"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.4 5L12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></symbol>
 </svg>
 
@@ -415,9 +472,23 @@ tr.hd .dbar span.b { background: var(--band-lr); }
           <button type="button" data-v="day">Ngày</button><button type="button" data-v="week">Tuần</button><button type="button" data-v="month">Tháng</button>
         </div>
       </div>
-      <div class="f-group"><span id="lbRange">Khoảng</span>
-        <div class="seg" id="fRange" role="group" aria-labelledby="lbRange">
-          <button type="button" data-v="30">30 ngày</button><button type="button" data-v="90">90 ngày</button><button type="button" data-v="all">Tất cả</button>
+      <div class="f-group">
+        <span class="f-cap"><span id="lbRange">Khoảng ngày</span><span class="f-err" id="fRangeErr" role="alert" hidden>Ngày chưa hợp lệ, nhập dạng dd/mm/yyyy</span></span>
+        <div class="range" id="fRange" role="group" aria-labelledby="lbRange">
+          <button class="range-all" type="button" data-v="30">30 ngày</button>
+          <button class="range-all" type="button" data-v="all">Toàn bộ</button>
+          <div class="date">
+            <label for="fFrom">Từ ngày</label>
+            <input id="fFrom" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="dd/mm/yyyy">
+            <button class="date-pick" type="button" aria-label="Chọn từ ngày trên lịch"><svg aria-hidden="true"><use href="#i-cal"></use></svg></button>
+            <input class="date-native" type="date" tabindex="-1" aria-hidden="true">
+          </div>
+          <div class="date">
+            <label for="fTo">đến ngày</label>
+            <input id="fTo" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="dd/mm/yyyy">
+            <button class="date-pick" type="button" aria-label="Chọn đến ngày trên lịch"><svg aria-hidden="true"><use href="#i-cal"></use></svg></button>
+            <input class="date-native" type="date" tabindex="-1" aria-hidden="true">
+          </div>
         </div>
       </div>
       <label class="f-group f-bucket">Kỳ đang xem
@@ -434,7 +505,7 @@ tr.hd .dbar span.b { background: var(--band-lr); }
   <section class="card" aria-labelledby="rankTitle">
     <header class="card-head">
       <h2 id="rankTitle">Thứ hạng HDBank theo lượt tải</h2>
-      <p class="desc">Hạng trong nhóm Banking theo lượt tải ước tính, hạng 1 nằm trên cùng. Thêm tối đa 2 app để so sánh.</p>
+      <p class="desc">Hạng trong nhóm Banking theo lượt tải ước tính trong khoảng ngày đang chọn, hạng 1 nằm trên cùng. Chọn tối đa 5 đối thủ để so sánh. Tuần, tháng tính trọn theo lịch; kỳ có dấu * chưa đủ ngày.</p>
     </header>
     <div class="chips" id="compare"></div>
     <div class="chart-box tall" style="margin-top:12px"><canvas id="rankChart" role="img" aria-label="Biểu đồ thứ hạng HDBank"></canvas></div>
@@ -632,9 +703,12 @@ const RV_PAGE = 12;
 
 /* ---------- trạng thái ---------- */
 const S = {
-  plat: store.get("plat", "ios"), gran: store.get("gran", "day"), range: store.get("range", "90"),
+  plat: store.get("plat", "ios"), gran: store.get("gran", "day"),
+  range: store.get("range", "30"),               // "30" | "all" | "custom"
+  from: store.get("from", ""), to: store.get("to", ""),  // dùng khi range = "custom"
   bucket: null, star: "all", compare: null, rvShow: RV_PAGE
 };
+if (!["30", "all", "custom"].includes(S.range)) S.range = "30";
 
 /* ---------- dữ liệu nền ---------- */
 const N = D.dates.length;
@@ -673,10 +747,10 @@ function buildEntities(plat) {
 // chỉ dùng ngày mà mọi store trong nền tảng đang xem đều đã có số liệu
 const platOses = plat => plat === "all" ? ["ios", "android"] : [plat];
 const validDay = (i, plat) => platOses(plat).every(o => D.have[o][i]);
-function buildBuckets(gran) {
+function buildBuckets(gran, to) {
   const order = [], map = {};
   D.dates.forEach((d, i) => {
-    if (!validDay(i, S.plat)) return;
+    if (!validDay(i, S.plat) || d > to) return;
     const k = bucketOf(d, gran);
     if (!map[k]) { map[k] = { key: k, idx: [] }; order.push(map[k]); }
     map[k].idx.push(i);
@@ -690,9 +764,24 @@ function buildBuckets(gran) {
 }
 
 let M; // mô hình đang hiển thị
+/* Khoảng ngày đang xem, giới hạn trong những ngày đã có số liệu của nền tảng đang chọn */
+function rangeOf() {
+  const vd = D.dates.filter((d, i) => validDay(i, S.plat));
+  const first = vd[0], last = vd[vd.length - 1];
+  const clamp = d => d < first ? first : d > last ? last : d;
+  let from = first, to = last;
+  if (S.range === "30") from = clamp(addDays(last, -29));
+  if (S.range === "custom") {
+    from = clamp(S.from || first); to = clamp(S.to || last);
+    if (from > to) [from, to] = [to, from];
+  }
+  return { first, last, from, to };
+}
 function compute() {
   const ents = buildEntities(S.plat);
-  const buckets = buildBuckets(S.gran);
+  const R = rangeOf();
+  // Kỳ tính trọn theo lịch và cắt ở "đến ngày"; giữ các kỳ trước "từ ngày" để so với kỳ liền trước
+  const buckets = buildBuckets(S.gran, R.to);
   buckets.forEach(b => {
     const tot = [];
     let sum = 0;
@@ -705,13 +794,13 @@ function compute() {
     b.rank = {}; b.units = {};
     tot.forEach(([k, u], i) => { b.rank[k] = i + 1; b.units[k] = u; });
   });
-  const last = buckets[buckets.length - 1].end;
-  const from = S.range === "all" ? D.dates[0] : addDays(last, -(Number(S.range) - 1));
+  const { first, last, from, to } = R;
   const shown = buckets.filter(b => b.end >= from);
-  M = { ents, buckets, shown, from, last, hd: HD(S.plat) };
+  M = { ents, buckets, shown, from, to, first, last, hd: HD(S.plat) };
+  syncRange();
   $("#heroMeta").innerHTML = [
     "Việt Nam", "Nhóm Banking (App IQ)",
-    `Dữ liệu ${dmy(D.dates[0])} – ${dmy(last)}`, `Cập nhật ${D.generated}`
+    `Dữ liệu ${dmy(first)} – ${dmy(last)}`, `Cập nhật ${D.generated}`
   ].map(t => `<li>${esc(t)}</li>`).join("");
   // kỳ xem mặc định: kỳ đầy đủ gần nhất
   const keys = shown.map(b => b.key);
@@ -793,7 +882,7 @@ function reviewTile() {
   const avg = rv.length ? rv.reduce((s, r) => s + r[2], 0) / rv.length : null;
   const neg = rv.filter(r => r[2] <= 2).length;
   return tile({
-    lab: `Review mới · từ ${ddmm(M.from)}`, val: avg == null ? "–" : dec(avg, 2), unit: "★ TB", extra: avg == null ? "" : meter(avg),
+    lab: `Review mới · ${ddmm(M.from)} – ${ddmm(M.to)}`, val: avg == null ? "–" : dec(avg, 2), unit: "★ TB", extra: avg == null ? "" : meter(avg),
     foot: `${fmt(rv.length)} review · ${rv.length ? Math.round(neg / rv.length * 100) : 0}% là 1–2★`
   });
 }
@@ -850,40 +939,102 @@ const endLabels = {
 };
 const shortName = n => String(n || "").replace(/ Mobile Banking| SmartBanking| Mobile$| - .*$/i, "").slice(0, 22);
 
+/* ---------- chọn đối thủ ----------
+   Tối đa 5 app. Mỗi app có màu + kiểu nét riêng (không chỉ dựa vào màu), cộng nhãn tên ở cuối đường. */
+const MAX_CMP = 5;
+const CMP_STYLES = [
+  { c: "#58595B", dash: [] },             // xám HDBank, nét liền
+  { c: "#FAA61A", dash: [6, 4] },         // cam, nét đứt
+  { c: "#9B9B9D", dash: [2, 3] },         // xám nhạt, chấm
+  { c: "#E0A100", dash: [10, 3, 2, 3] },  // vàng đậm, gạch-chấm
+  { c: "#58595B", dash: [12, 5] }         // xám đậm, gạch dài
+];
+const lineSvg = (c, dash, w = 3) => `<svg class="ln" viewBox="0 0 18 6" aria-hidden="true"><line x1="0" y1="3" x2="18" y2="3" stroke="${c}" stroke-width="${w}" stroke-dasharray="${(dash || []).join(" ")}"/></svg>`;
+/* Hạng theo tổng lượt tải trong cả khoảng ngày đang chọn: dùng cho danh sách chọn và "Top 5" */
+function rangeRanking() {
+  const idx = []; D.dates.forEach((d, i) => { if (d >= M.from && d <= M.to && validDay(i, S.plat)) idx.push(i); });
+  return Object.values(M.ents).map(e => [e.key, idx.reduce((s, i) => s + e.daily[i], 0)])
+    .filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]);
+}
+function nearHd(list) {
+  const r = list.findIndex(x => x[0] === M.hd);
+  if (r < 0) return list.slice(0, 2).map(x => x[0]);
+  return [list[r - 1], list[r + 1]].filter(Boolean).map(x => x[0]);
+}
 function defaultCompare() {
-  const b = M.buckets[bIndex(S.bucket)], r = b.rank[M.hd];
-  if (!r) return b.sorted.slice(0, 2).map(x => x[0]);
-  const out = [];
-  if (r > 1) out.push(b.sorted[r - 2][0]);
-  if (r < b.sorted.length) out.push(b.sorted[r][0]);
-  return out;
+  let saved = [];
+  try { saved = JSON.parse(store.get("cmp_" + S.plat, "[]")) || []; } catch (e) { /* bỏ qua */ }
+  saved = saved.filter(k => M.ents[k] && k !== M.hd).slice(0, MAX_CMP);
+  return saved.length ? saved : nearHd(rangeRanking());
 }
+function setCompare(list) {
+  S.compare = list.slice(0, MAX_CMP);
+  store.set("cmp_" + S.plat, JSON.stringify(S.compare));
+  renderRankChart();
+}
+let cmpOpen = false, cmpQuery = "";
 function renderCompare() {
-  const b = M.buckets[bIndex(S.bucket)];
-  const chips = [`<span class="chip on"><i class="line" style="background:var(--hd)"></i>HDBank</span>`]
+  const keepScroll = document.getElementById("cmpList")?.scrollTop || 0;   // giữ vị trí cuộn khi tick chọn
+  const chips =[`<span class="chip on">${lineSvg(css("--hd"), [], 4)}HDBank</span>`]
     .concat(S.compare.map((k, i) => {
-      const nm = esc(shortName(M.ents[k]?.name || k));
-      return `<span class="chip"><i class="${i ? "dash" : "line"}"${i ? "" : ' style="background:var(--c1)"'}></i>${nm}<button class="chip-x" type="button" data-rm="${esc(k)}" aria-label="Bỏ so sánh ${nm}"><svg aria-hidden="true"><use href="#i-x"></use></svg></button></span>`;
+      const nm = esc(shortName(M.ents[k]?.name || k)), st = CMP_STYLES[i];
+      return `<span class="chip">${lineSvg(st.c, st.dash)}${nm}<button class="chip-x" type="button" data-rm="${esc(k)}" aria-label="Bỏ so sánh ${nm}"><svg aria-hidden="true"><use href="#i-x"></use></svg></button></span>`;
     }));
-  let add = "";
-  if (S.compare.length < 2) {
-    const opts = b.sorted.slice(0, 30).filter(([k]) => k !== M.hd && !S.compare.includes(k))
-      .map(([k]) => `<option value="${esc(k)}">#${b.rank[k]} ${esc(M.ents[k].name)}</option>`).join("");
-    add = `<select class="sm" id="addCmp" aria-label="Thêm app để so sánh"><option value="">+ So sánh với…</option>${opts}</select>`;
-  }
-  $("#compare").innerHTML = chips.join("") + add;
-  $("#compare").querySelectorAll("[data-rm]").forEach(btn => btn.onclick = () => { S.compare = S.compare.filter(k => k !== btn.dataset.rm); renderRankChart(); });
-  const a = $("#addCmp"); if (a) a.onchange = () => { if (a.value) { S.compare.push(a.value); renderRankChart(); } };
+  $("#compare").innerHTML = chips.join("") + `<span class="cmp-wrap">
+    <button class="btn btn-outline btn-sm" id="cmpBtn" type="button" aria-expanded="${cmpOpen}" aria-controls="cmpPop"><svg aria-hidden="true"><use href="#i-plus"></use></svg>Chọn đối thủ (${S.compare.length}/${MAX_CMP})</button>
+    <div class="cmp-pop" id="cmpPop" ${cmpOpen ? "" : "hidden"} role="dialog" aria-label="Chọn đối thủ để so sánh">
+      <input type="search" id="cmpSearch" placeholder="Tìm app ngân hàng…" autocomplete="off" value="${esc(cmpQuery)}">
+      <div class="cmp-quick">
+        <button type="button" data-q="near">Sát hạng HDBank</button>
+        <button type="button" data-q="top">Top ${MAX_CMP}</button>
+        <button type="button" data-q="none">Bỏ chọn hết</button>
+      </div>
+      <ul class="cmp-list" id="cmpList"></ul>
+      <p class="cmp-foot">Xếp theo tổng lượt tải từ ${dmy(M.from)} đến ${dmy(M.to)} · chọn tối đa ${MAX_CMP} app</p>
+    </div></span>`;
+  $("#compare").querySelectorAll("[data-rm]").forEach(btn => btn.onclick = () => setCompare(S.compare.filter(k => k !== btn.dataset.rm)));
+  $("#cmpBtn").onclick = e => { e.stopPropagation(); cmpOpen = !cmpOpen; renderCompare(); if (cmpOpen) $("#cmpSearch").focus(); };
+  if (!cmpOpen) return;
+  const list = rangeRanking();
+  $("#cmpPop").querySelectorAll("[data-q]").forEach(b => b.onclick = () => {
+    const q = b.dataset.q;
+    setCompare(q === "none" ? [] : q === "near" ? nearHd(list) : list.filter(x => x[0] !== M.hd).slice(0, MAX_CMP).map(x => x[0]));
+  });
+  const fillList = () => {
+    const q = cmpQuery.trim().toLowerCase(), full = S.compare.length >= MAX_CMP;
+    const rows = list.map((x, i) => [x[0], i + 1]).filter(([k]) => k !== M.hd && (!q || (M.ents[k].name || "").toLowerCase().includes(q)));
+    $("#cmpList").innerHTML = rows.length ? rows.slice(0, 150).map(([k, rk]) => {
+      const e = M.ents[k], on = S.compare.includes(k), dis = full && !on;
+      return `<li><label class="${dis ? "dis" : ""}"><input type="checkbox" value="${esc(k)}" ${on ? "checked" : ""} ${dis ? "disabled" : ""}>
+        <span class="rk">#${rk}</span>${e.icon ? `<img src="${esc(e.icon)}" alt="" loading="lazy">` : ""}<span class="nm">${esc(e.name)}</span></label></li>`;
+    }).join("") : `<li class="empty">Không tìm thấy app phù hợp.</li>`;
+  };
+  fillList();
+  $("#cmpList").scrollTop = keepScroll;
+  // dịch bảng chọn vào trong khung nhìn khi nút nằm sát mép màn hình
+  const pop = $("#cmpPop"), r = pop.getBoundingClientRect(), pad = 16;
+  if (r.right > innerWidth - pad) pop.style.left = `${Math.min(0, innerWidth - pad - r.right)}px`;
+  const r2 = pop.getBoundingClientRect();
+  if (r2.left < pad) pop.style.left = `${parseFloat(pop.style.left || 0) + pad - r2.left}px`;
+  $("#cmpSearch").oninput = e => { cmpQuery = e.target.value; fillList(); };
+  $("#cmpList").onchange = e => {
+    const k = e.target.value;
+    setCompare(e.target.checked ? [...S.compare, k] : S.compare.filter(x => x !== k));
+  };
+  $("#cmpPop").onclick = e => e.stopPropagation();
 }
+document.addEventListener("click", () => { if (cmpOpen) { cmpOpen = false; renderCompare(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && cmpOpen) { cmpOpen = false; renderCompare(); $("#cmpBtn").focus(); } });
 function renderRankChart() {
   renderCompare();
+  if (cmpOpen) { const s = $("#cmpSearch"); s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
   const labels = M.shown.map(b => bucketLabel(b.key, S.gran) + (b.partial ? "*" : ""));
-  const series = [[M.hd, "--hd"], ...S.compare.map((k, i) => [k, ["--c1", "--c2"][i]])];
-  const datasets = series.map(([k, c]) => ({
+  const series = [[M.hd, { c: css("--hd"), dash: [] }], ...S.compare.map((k, i) => [k, CMP_STYLES[i]])];
+  const datasets = series.map(([k, st]) => ({
     label: M.ents[k]?.name || k, short: k === M.hd ? "HDBank" : shortName(M.ents[k]?.name), isHd: k === M.hd,
     data: M.shown.map(b => b.rank[k] ?? null),
-    borderColor: css(c), backgroundColor: css(c), borderWidth: k === M.hd ? 3 : 2,
-    borderDash: c === "--c2" ? [6, 4] : [],
+    borderColor: st.c, backgroundColor: st.c, borderWidth: k === M.hd ? 3 : 2,
+    borderDash: st.dash,
     pointRadius: M.shown.length > 40 ? 0 : 3, pointHoverRadius: 5, pointBorderColor: "#FFFFFF", pointBorderWidth: 2,
     tension: 0, spanGaps: true, order: k === M.hd ? 0 : 1
   }));
@@ -964,11 +1115,12 @@ $("#csvMatrix").onclick = () => {
 };
 
 /* ---------- review & rating ---------- */
-function reviewsInRange() {
-  return D.reviews.filter(r => r[0] >= M.from && (S.plat === "all" || r[1] === S.plat));
+function reviewsInRange(from = M.from, to = M.to) {
+  return D.reviews.filter(r => r[0] >= from && r[0] <= to && (S.plat === "all" || r[1] === S.plat));
 }
 function renderReviewCharts() {
-  const rv = reviewsInRange(), agg = {};
+  // biểu đồ gom theo kỳ trọn theo lịch, giống biểu đồ thứ hạng
+  const rv = reviewsInRange(M.shown.length ? M.shown[0].start : M.from, M.to), agg = {};
   M.shown.forEach(b => agg[b.key] = { n: 0, s: 0, pos: 0, mid: 0, neg: 0 });
   rv.forEach(r => {
     const a = agg[bucketOf(r[0], S.gran)]; if (!a) return;
@@ -1021,7 +1173,7 @@ function renderReviews(reset) {
   if (S.star === "neg") rv = rv.filter(r => r[2] <= 2);
   if (S.star === "mid") rv = rv.filter(r => r[2] === 3);
   if (S.star === "pos") rv = rv.filter(r => r[2] >= 4);
-  $("#rvNote").textContent = `${fmt(rv.length)} review của HDBank từ ${dmy(M.from)} · ${platName()} · mới nhất trước`;
+  $("#rvNote").textContent = `${fmt(rv.length)} review của HDBank từ ${dmy(M.from)} đến ${dmy(M.to)} · ${platName()} · mới nhất trước`;
   $("#reviews").innerHTML = rv.length ? rv.slice(0, S.rvShow).map(r => `<article class="rv">
     <div class="rv-head">
       <span class="rv-stars"><i style="background:var(--s${r[2]})"></i>${r[2]}★</span>
@@ -1053,9 +1205,65 @@ function renderAll(resetCompare) {
   if (resetCompare || !S.compare || S.compare.some(k => !M.ents[k])) S.compare = defaultCompare();
   renderKpis(); renderRankChart(); renderRankTable(); renderMatrix(); renderReviewCharts(); renderReviews(true);
 }
-seg("#fPlat", "plat", () => { S.bucket = null; renderAll(true); });
-seg("#fGran", "gran", () => { S.bucket = null; renderAll(true); });
-seg("#fRange", "range", () => renderAll(false));
+/* ---------- khoảng ngày: nút nhanh + ô Từ ngày / đến ngày (gõ dd/mm/yyyy hoặc chọn trên lịch) ---------- */
+const DATE_IDS = ["fFrom", "fTo"];
+const dateParts = id => { const box = document.getElementById(id).parentElement; return { box, text: box.querySelector("input[type=text]"), pick: box.querySelector(".date-pick"), native: box.querySelector(".date-native") }; };
+function parseDMY(v) {
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(v).trim());
+  if (!m) return null;
+  const d = `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  const t = parse(d);
+  return isNaN(t) || iso(t) !== d ? null : d;
+}
+function markDate(id, bad) {
+  const { box, text } = dateParts(id);
+  box.classList.toggle("is-invalid", bad); text.setAttribute("aria-invalid", String(bad));
+  $("#fRangeErr").hidden = !DATE_IDS.some(x => dateParts(x).box.classList.contains("is-invalid"));
+}
+/* Đưa khoảng ngày đang dùng lên ô nhập và nút nhanh */
+function syncRange() {
+  DATE_IDS.forEach(id => {
+    const { text, native } = dateParts(id), v = id === "fFrom" ? M.from : M.to;
+    text.value = dmy(v); markDate(id, false);
+    native.value = v; native.min = M.first; native.max = M.last;
+  });
+  $("#fRange").querySelectorAll("button[data-v]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.range)));
+}
+function setRange(range, from = "", to = "") {
+  S.range = range; S.from = from; S.to = to; S.bucket = null;
+  store.set("range", range); store.set("from", from); store.set("to", to);
+  renderAll(false);
+}
+function commitDate(id) {
+  const v = parseDMY(dateParts(id).text.value);
+  if (!v) return markDate(id, true);
+  let from = id === "fFrom" ? v : M.from, to = id === "fTo" ? v : M.to;
+  if (from > to) { if (id === "fFrom") to = from; else from = to; }   // ngày vừa nhập vượt đầu kia: kéo đầu kia theo
+  if (from === M.from && to === M.to) return syncRange();
+  setRange("custom", from, to);
+}
+(function buildRangeFilter() {
+  const canPick = "showPicker" in HTMLInputElement.prototype;
+  DATE_IDS.forEach(id => {
+    const { text, pick, native } = dateParts(id);
+    text.addEventListener("input", e => {
+      // tự chèn dấu "/" khi đang gõ ở cuối ô; gõ đủ dd/mm/yyyy thì lọc ngay
+      let v = text.value.replace(/[.\-\s]/g, "/").replace(/\/{2,}/g, "/");
+      if (/^insert/.test(e.inputType || "") && text.selectionStart === text.value.length && /^(\d{2}|\d{2}\/\d{2})$/.test(v)) v += "/";
+      if (v !== text.value) text.value = v;
+      if (v.length === 10 && parseDMY(v)) commitDate(id);
+    });
+    text.addEventListener("change", () => commitDate(id));
+    text.addEventListener("keydown", e => { if (e.key === "Enter") commitDate(id); });
+    native.addEventListener("change", () => { if (native.value) { text.value = dmy(native.value); commitDate(id); } });
+    pick.hidden = !canPick;
+    pick.addEventListener("click", () => { try { native.showPicker(); } catch (err) { text.focus(); } });
+  });
+  $("#fRange").querySelectorAll("button[data-v]").forEach(b => b.onclick = () => setRange(b.dataset.v));
+})();
+
+seg("#fPlat", "plat", () => { S.bucket = null; cmpQuery = ""; renderAll(true); });
+seg("#fGran", "gran", () => { S.bucket = null; renderAll(false); });
 seg("#fStar", "star", () => renderReviews(true));
 $("#fBucket").onchange = e => { S.bucket = e.target.value; renderKpis(); renderRankTable(); renderMatrix(); renderCompare(); };
 

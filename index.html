@@ -623,7 +623,10 @@ async function deriveKey(pw, box) {
     base, { name: "AES-GCM", length: 256 }, true, ["decrypt"]);
 }
 async function openBox(box, key) {
-  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64dec(box.iv) }, key, b64dec(box.data));
+  let plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64dec(box.iv) }, key, b64dec(box.data));
+  if (box.zip === "gzip") {   // update.py nén gzip trước khi mã hóa
+    plain = await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+  }
   return JSON.parse(new TextDecoder().decode(plain));
 }
 /* Mở khóa bằng khóa đã ghi nhớ; không có hoặc sai (đổi mật khẩu) thì hiện ô nhập mật khẩu. */

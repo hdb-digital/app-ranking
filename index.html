@@ -5,401 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#da2128">
-<title>HDBank · Xếp hạng app</title>
-<link rel="icon" type="image/png" href="assets/favicon.png">
+<title>Xếp hạng app · HDB Digital Hub</title>
+<link rel="icon" type="image/png" href="https://hdb-digital.cloud/assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://hdb-digital.cloud/assets/hdb-ui.css?v=1.1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
-/* =========================================================
-   TOKENS — HDBank Digital Playbook (2.a–2.j), đồng bộ với Digital Hub / ggmap-dashboard
-   ========================================================= */
-:root {
-  color-scheme: light;
-  --red: #DA2128; --grey: #58595B; --orange: #FAA61A; --amber: #FFC20E; --yellow: #FFDD00;
-  /* Sắc độ 10–100% (pha với trắng) */
-  --red-10: #FBE9EA; --red-20: #F8D3D4;
-  --grey-10: #EEEEEF; --grey-20: #DEDEDE; --grey-30: #CDCDCE; --grey-50: #ACACAD; --grey-60: #9B9B9D; --grey-70: #8A8B8C;
-  --orange-10: #FEF6E9;
-  --white: #FFFFFF;
-  --muted: #58595B;  /* chữ phụ dùng xám HDBank: tương phản 7:1 trên nền trắng */
+/* Chỉ CSS riêng của trang này (thành phần chưa có trong hdb-ui.css) */
 
-  /* Thang số sao (giống ggmap-dashboard): 5★ đỏ, 4★ cam; 3★/2★/1★ xám 30/70/100% */
-  --s1: #58595B; --s2: #8A8B8C; --s3: #CDCDCE; --s4: #FAA61A; --s5: #DA2128;
-  --grid: #DEDEDE; --axis: #ACACAD; --hover: #FBE9EA;
-  /* Màu thay đổi: tăng xanh lá ▲, giảm đỏ ▼ */
-  --up: #1F7A45; --down: #DA2128;
-
-  /* Màu biểu đồ thứ hạng: HDBank đỏ, đối thủ 1 xám, đối thủ 2 cam nét đứt */
-  --hd: #DA2128; --c1: #58595B; --c2: #FAA61A;
-  /* Nhóm review: tích cực theo màu 5★, trung tính theo 3★, tiêu cực theo 1★ */
-  --pos: #DA2128; --mid: #CDCDCE; --neg: #58595B;
-
-  --font-head: "BauhausVO", "Quicksand", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Myriad Pro", "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
-
-  /* Chân KV: dải màu dưới lên (Cam-Vàng → Cam → Đỏ), đỏ đặc chiếm phần lớn phía trên */
-  --kv-band: linear-gradient(0deg, var(--amber) 0%, var(--orange) 7%, var(--red) 26%, var(--red) 100%);
-  --band-lr: linear-gradient(90deg, var(--orange) 0%, var(--red) 100%);
-  --icon-bg: linear-gradient(0deg, var(--amber) 0%, var(--orange) 24%, var(--red) 68%);
-
-  /* Bóng đổ nhẹ tạo chiều sâu (KV 2.e) */
-  --lift: 0 1px 2px rgba(88,89,91,.10), 0 10px 24px -12px rgba(88,89,91,.30), 0 36px 72px -32px rgba(110,10,16,.35);
-  --lift-sm: 0 1px 2px rgba(88,89,91,.08), 0 8px 22px -14px rgba(88,89,91,.35);
-
-  --wrap: 1240px;
-  --gutter: clamp(16px, 3vw, 32px);
-}
-
-*, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--grey-10); color: var(--grey);
-  font: 16px/1.5 var(--font-body); -webkit-font-smoothing: antialiased;
-}
-h1, h2, h3 { font-family: var(--font-head); font-weight: 700; line-height: 1.2; margin: 0; color: var(--grey); }
-p { margin: 0; }
-a { color: var(--red); }
-[hidden] { display: none !important; }
-:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; border-radius: 6px; }
-.wrap { max-width: var(--wrap); margin: 0 auto; padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)); }
-.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
-
-/* ---------- Nút ---------- */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 20px;
-  border-radius: 999px; border: 2px solid transparent; font: 600 15px/1 var(--font-body); cursor: pointer; text-decoration: none;
-  transition: background-color .2s, color .2s, box-shadow .2s, transform .2s; white-space: nowrap;
-}
-.btn svg { width: 18px; height: 18px; flex: none; fill: currentColor; }
-.btn-red { background: var(--red); color: var(--white); }
-.btn-red:hover { box-shadow: 0 10px 20px -10px rgba(218,33,40,.75); transform: translateY(-1px); }
-.btn-outline { border-color: var(--red); color: var(--red); background: var(--white); }
-.btn-outline:hover { background: var(--red-10); }
-.btn-sm { min-height: 36px; padding: 0 14px; font-size: 14px; border-width: 1.5px; }
-.btn-sm svg { width: 16px; height: 16px; }
-
-/* =========================================================
-   HEADER — nền trắng, logo dương bản góc trái
-   ========================================================= */
-.site-header { background: var(--white); }
-.header-inner { display: flex; align-items: center; gap: 20px; min-height: 72px; }
-.brand { display: flex; align-items: center; gap: 16px; text-decoration: none; flex: none; padding-block: 14px; }
-.brand-logo { display: block; height: 34px; width: auto; min-width: 55px; }
-.brand-name {
-  font: 700 16px/1.1 var(--font-head); color: var(--grey); white-space: nowrap;
-  padding-left: 16px; border-left: 1px solid var(--grey-20);
-}
-.nav { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
-.nav::-webkit-scrollbar { display: none; }
-.nav a {
-  white-space: nowrap; text-decoration: none; color: var(--grey); font-weight: 600; font-size: 15px;
-  padding: 9px 14px; border-radius: 999px; transition: color .2s, background-color .2s;
-}
-.nav a:hover { color: var(--red); background: var(--red-10); }
-.nav a[aria-current="page"] { color: var(--red); background: var(--red-10); }
-.nav .short { display: none; }
-
-/* =========================================================
-   HERO — nền đỏ + chân KV, đồ họa cánh diều đôi gốc
-   ========================================================= */
-.hero { position: relative; overflow: hidden; isolation: isolate; color: var(--white); background: var(--kv-band); }
-.hero::after {
-  content: ""; position: absolute; z-index: -1; top: 0; right: 0; bottom: 0; width: min(56%, 760px);
-  background: url("assets/kite.jpg") left top / cover no-repeat;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 50%); mask-image: linear-gradient(90deg, transparent 0%, #000 50%);
-}
-.hero-inner { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px 24px; align-items: start; padding-block: 40px 104px; }
-.hero-icon { --s: 68px; box-shadow: 0 0 0 3px rgba(255,255,255,.9), 0 14px 28px -12px rgba(0,0,0,.45); }
-.hero h1 { color: var(--white); font-size: clamp(30px, 4vw, 46px); letter-spacing: -.01em; line-height: 1.08; }
-.hero-lead { margin-top: 10px; font-size: 18px; max-width: 40em; text-wrap: pretty; color: rgba(255,255,255,.95); }
-.hero-meta { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.hero-meta li {
-  font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
-  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); color: var(--white);
-}
-
-/* Icon cấp 1: glyph trắng trong khối vuông bo góc kiểu icon app, nền dải màu thương hiệu */
-.icon1 {
-  --s: 56px; width: var(--s); height: var(--s); border-radius: calc(var(--s) * .2237); flex: none;
-  display: grid; place-items: center; background: var(--icon-bg);
-}
-.icon1 svg { width: 56%; height: 56%; fill: var(--white); }
-
-/* =========================================================
-   BỘ LỌC — thẻ trắng nổi trên chân hero
-   ========================================================= */
-.filter-dock { position: relative; z-index: 30; margin-top: -64px; padding-block: 0 4px; }
-.filters {
-  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px;
-  background: var(--white); border-radius: 24px; padding: 16px 20px; box-shadow: var(--lift);
-}
-.f-group { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); min-width: 0; }
-.f-bucket { margin-left: auto; }
-.f-cap { display: flex; flex-wrap: wrap; gap: 2px 10px; }
-.f-err { color: var(--red); }
-/* Khoảng ngày: nút nhanh + hai ô Từ ngày / đến ngày (gõ dd/mm/yyyy hoặc chọn trên lịch) – giống ggmap-dashboard */
-.range { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.range-all {
-  font: 600 14px/1 var(--font-body); color: var(--grey); background: var(--grey-10); border: 0; border-radius: 999px;
-  min-height: 42px; padding: 0 16px; cursor: pointer; white-space: nowrap; transition: background-color .15s, color .15s;
-}
-.range-all:hover { background: var(--grey-20); }
-.range-all[aria-pressed="true"] { background: var(--red); color: var(--white); }
-.date {
-  position: relative; display: flex; align-items: center; gap: 5px; min-height: 42px; padding: 0 5px 0 12px;
-  background: var(--white); border: 1.5px solid var(--grey-20); border-radius: 999px; transition: border-color .2s, box-shadow .2s;
-}
-.date:focus-within { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-10); }
-.date.is-invalid { border-color: var(--red); }
-.date label { font-size: 14px; font-weight: 400; color: var(--grey); white-space: nowrap; cursor: text; }
-.date input[type=text] {
-  font: 400 15px/1.2 var(--font-body); font-variant-numeric: tabular-nums; color: var(--grey);
-  flex: 1 1 84px; width: 84px; min-width: 0; border: 0; background: none; padding: 0;
-}
-.date input[type=text]:focus { outline: none; }
-.date input[type=text]::placeholder { color: var(--grey-70); opacity: 1; }
-.date-pick { display: grid; place-items: center; width: 28px; height: 28px; flex: none; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
-.date-pick svg { width: 17px; height: 17px; fill: var(--grey); }
-.date-pick:hover { background: var(--red-10); }
-.date-pick:hover svg { fill: var(--red); }
-.date-native { position: absolute; left: 0; bottom: 0; width: 100%; height: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; }
-
-/* Nhóm nút chọn: dạng viên thuốc, nút đang chọn màu đỏ */
-.seg { display: inline-flex; gap: 2px; padding: 3px; background: var(--grey-10); border-radius: 999px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-.seg::-webkit-scrollbar { display: none; }
-.seg button {
-  font: 600 14px/1 var(--font-body); color: var(--grey); background: none; border: 0; border-radius: 999px;
-  min-height: 36px; padding: 0 14px; cursor: pointer; white-space: nowrap; transition: background-color .15s, color .15s;
-}
-.seg button:hover:not(.on) { background: var(--grey-20); }
-.seg button.on { background: var(--red); color: var(--white); box-shadow: 0 6px 14px -8px rgba(218,33,40,.8); }
-
-select {
-  font: 400 15px/1.2 var(--font-body); color: var(--grey);
-  border: 1.5px solid var(--grey-20); border-radius: 999px; padding: 10px 36px 10px 14px; min-height: 42px;
-  appearance: none; -webkit-appearance: none; min-width: 132px; max-width: 100%; cursor: pointer;
-  background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 8l4.5 4.5L14.5 8' fill='none' stroke='%2358595B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 12px center / 16px no-repeat;
-  transition: border-color .2s, box-shadow .2s;
-}
-select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px var(--red-10); }
-input[type=password] {
-  font: 400 15px/1.2 var(--font-body); color: var(--grey); background-color: var(--white);
-  border: 1.5px solid var(--grey-20); border-radius: 999px; padding: 10px 14px; min-height: 42px;
-  transition: border-color .2s, box-shadow .2s;
-}
-input[type=password]:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px var(--red-10); }
-
-/* Mật khẩu: data.json được mã hóa, nhập đúng mật khẩu mới giải mã và hiện dashboard (giống ggmap-dashboard) */
-body.locked .filter-dock, body.locked main { display: none; }
-.gate { position: relative; z-index: 30; margin-top: -64px; padding-bottom: 48px; }
-.gate-card { max-width: 440px; margin-top: 0; display: grid; gap: 12px; box-shadow: var(--lift); }
-.gate-card label { font-weight: 600; font-size: 14px; }
-.gate-card .gate-remember { display: flex; align-items: center; gap: 8px; font-weight: 400; color: var(--muted); }
-.gate-card .gate-remember input { width: 18px; height: 18px; accent-color: var(--red); }
-.gate-err { margin: 0; color: var(--red); font-size: 14px; font-weight: 600; }
-.gate-card .btn { justify-self: start; }
-
-select.sm { min-height: 34px; padding-block: 6px; font-size: 14px; }
-
-/* =========================================================
-   CHỈ SỐ
-   ========================================================= */
-main { padding-bottom: 24px; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; margin-top: 20px; }
-.tile { position: relative; overflow: hidden; background: var(--white); border-radius: 20px; padding: 18px 20px; box-shadow: var(--lift-sm); min-width: 0; }
-.tile .lab { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
-.tile .row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; }
-.tile .val { font-size: 40px; font-weight: 700; line-height: 1.1; color: var(--grey); letter-spacing: -.01em; }
-.tile .unit { font-size: 16px; font-weight: 600; color: var(--grey-70); }
-.tile .val small { font-size: .6em; font-weight: 700; margin-left: 2px; }
-.tile .foot { margin-top: 6px; font-size: 14px; color: var(--muted); }
-.tile.band { padding-bottom: 22px; }
-.tile.band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: var(--band-lr); }
+/* Ô "Dẫn đầu lượt tải": icon + tên app thay cho số */
 .tile.top1 .row { align-items: center; flex-wrap: nowrap; }
 .tile.top1 .val { display: flex; align-items: center; gap: 10px; font-size: 22px; line-height: 1.25; min-width: 0; }
 .tile.top1 .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.tile.top1 img { width: 40px; height: 40px; border-radius: 10px; flex: none; box-shadow: 0 0 0 1px var(--grey-20); }
-.tile .meter { margin-left: auto; align-self: center; }
-.sec-head { display: flex; align-items: baseline; gap: 12px; margin-top: 36px; }
-.sec-head h2 { font-size: 24px; }
-.sec-head p { font-size: 14px; color: var(--muted); }
+.tile.top1 img { width: 40px; height: 40px; border-radius: 10px; flex: none; box-shadow: 0 0 0 1px var(--line); }
+.tile .val small { font-size: .6em; font-weight: 700; margin-left: 2px; }
 
-.meter { position: relative; display: inline-block; line-height: 0; }
-.meter-bg, .meter-fg { display: flex; gap: 4px; }
-.meter-fg { position: absolute; inset: 0 auto 0 0; overflow: hidden; }
-.meter svg { width: 22px; height: 22px; flex: none; fill: var(--grey-20); }
-.meter-fg svg { fill: var(--orange); }
-
-/* Mũi tên thay đổi: ▲/▼ + số, xanh = tích cực, đỏ = cần chú ý, xám = trung tính */
-.delta { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--grey-70); }
-.delta.up { color: var(--up); }
-.delta.down { color: var(--down); }
-.up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--grey-70); }
-
-/* =========================================================
-   THẺ BIỂU ĐỒ / BẢNG
-   ========================================================= */
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px; margin-top: 16px; }
-.card { background: var(--white); border-radius: 24px; padding: 22px 24px 20px; box-shadow: var(--lift-sm); min-width: 0; margin-top: 16px; }
-.grid2 .card { margin-top: 0; }
-.card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin-bottom: 14px; }
-.card h2 { font-size: 20px; }
-.card .desc { flex-basis: 100%; color: var(--muted); font-size: 14px; }
-.card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--grey); margin-bottom: 8px; }
-.legend span { display: inline-flex; align-items: center; gap: 6px; }
-.legend i, .chip i, .rv-stars i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
-.chart-box { position: relative; height: 300px; }
-.chart-box.tall { height: 340px; }
-
-/* Chip: chú thích đường so sánh + lọc review */
-.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.chip {
-  font: 600 14px/1 var(--font-body); border: 1.5px solid var(--grey-20); background: var(--white); color: var(--grey);
-  border-radius: 999px; padding: 8px 14px; display: inline-flex; gap: 8px; align-items: center; white-space: nowrap;
-}
-button.chip { cursor: pointer; }
-button.chip:hover { border-color: var(--grey-50); }
-.chip.on, .chip[aria-pressed="true"] { color: var(--red); border-color: var(--red); background: var(--red-10); }
-.chip i.dash { width: 16px; height: 0; border-radius: 0; border-top: 3px dashed var(--c2); background: none; }
-.chip i.line { width: 16px; height: 3px; border-radius: 2px; }
-.chip-x { display: grid; place-items: center; width: 22px; height: 22px; margin: -4px -8px -4px -2px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
-.chip-x svg { width: 14px; height: 14px; fill: var(--grey-70); }
-.chip-x:hover { background: var(--red-10); }
-.chip-x:hover svg { fill: var(--red); }
-.chip-sep { width: 1px; height: 24px; background: var(--grey-20); margin-inline: 4px; }
+/* Chip đối thủ: mẫu nét của đường trong biểu đồ */
 .chip svg.ln { width: 18px; height: 6px; flex: none; }
+/* Danh sách chọn đối thủ: số hạng thẳng cột */
+#cmpList .meta { width: 34px; flex: none; }
 
-/* Chọn đối thủ cho biểu đồ thứ hạng */
-.cmp-wrap { position: relative; }
-.cmp-pop {
-  position: absolute; z-index: 40; top: calc(100% + 8px); left: 0; width: min(400px, calc(100vw - 32px));
-  background: var(--white); border: 1px solid var(--grey-20); border-radius: 18px; box-shadow: var(--lift); padding: 14px;
-}
-.cmp-pop input[type=search] {
-  width: 100%; font: 400 15px/1.2 var(--font-body); color: var(--grey); background: var(--white);
-  border: 1.5px solid var(--grey-20); border-radius: 999px; padding: 10px 14px; min-height: 42px;
-}
-.cmp-pop input[type=search]:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px var(--red-10); }
-.cmp-quick { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 8px; }
-.cmp-quick button { font: 600 13px/1 var(--font-body); color: var(--grey); background: var(--grey-10); border: 0; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
-.cmp-quick button:hover { background: var(--red-10); color: var(--red); }
-.cmp-list { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; }
-.cmp-list label { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
-.cmp-list label:hover { background: #FDF6F6; }
-.cmp-list label.dis { opacity: .45; cursor: not-allowed; }
-.cmp-list input { width: 18px; height: 18px; flex: none; accent-color: var(--red); }
-.cmp-list img { width: 24px; height: 24px; border-radius: 6px; flex: none; box-shadow: 0 0 0 1px var(--grey-20); }
-.cmp-list .rk { width: 34px; flex: none; color: var(--grey-70); font-variant-numeric: tabular-nums; }
-.cmp-list .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cmp-foot { margin-top: 8px; font-size: 13px; color: var(--muted); }
-
-/* Bảng */
-.tbl-wrap { overflow-x: auto; border: 1px solid var(--grey-20); border-radius: 16px; }
-table { border-collapse: collapse; width: 100%; font-size: 14px; }
-th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--grey-10); vertical-align: middle; white-space: nowrap; }
-th { color: var(--grey); font-weight: 700; font-size: 13px; background: #F7F7F7; position: sticky; top: 0; z-index: 2; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-tbody tr:hover td { background: #FDF6F6; }
-tr.hd td, tbody tr.hd:hover td { background: var(--red-10); font-weight: 700; }
-tr.hd .app-name { color: var(--red); }
-.app { display: flex; align-items: center; gap: 10px; min-width: 220px; }
-.app img { width: 28px; height: 28px; border-radius: 7px; flex: none; box-shadow: 0 0 0 1px var(--grey-20); }
-.app-name { font-weight: 600; color: var(--grey); }
-.app .pub { color: var(--grey-70); font-size: 12px; font-weight: 400; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
-.dbar { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
-.dbar span.b { height: 8px; border-radius: 0 4px 4px 0; background: var(--grey-20); display: inline-block; }
-tr.hd .dbar span.b { background: var(--band-lr); }
+/* Bảng xếp hạng: tên app + nhà phát hành, cột ± */
+tr.is-hd .app-name { color: var(--red); }
+.entity .pub { color: var(--grey-70); font-size: 12px; font-weight: 400; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
 .mv { font-weight: 700; font-variant-numeric: tabular-nums; }
-.mv.new { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--orange-10); color: #8A5A00; }
-.matrix td:first-child, .matrix th:first-child { position: sticky; left: 0; z-index: 1; background: var(--white); }
-.matrix th:first-child { z-index: 3; background: #F7F7F7; }
-.matrix tr.hd td:first-child { background: var(--red-10); color: var(--red); }
-.matrix td.num { min-width: 52px; }
-.matrix td.out { color: var(--grey-50); }
 
-/* ---------- Review chi tiết ---------- */
-.reviews { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 14px; align-items: start; margin-top: 14px; }
-.rv { border: 1px solid var(--grey-20); border-radius: 18px; padding: 16px 18px; background: var(--white); min-width: 0; }
-.rv-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
-.rv-stars { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; padding: 4px 10px; border-radius: 999px; background: var(--grey-10); }
-.rv .who { font-weight: 700; color: var(--grey); }
-.rv time { margin-left: auto; font-size: 13px; color: var(--muted); }
-.rv .rv-title { margin-top: 10px; font-weight: 700; color: var(--grey); }
-.rv .txt { margin-top: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.rv .rv-title + .txt { margin-top: 2px; }
-.rv .ver { margin-top: 10px; font-size: 13px; color: var(--grey-70); }
-.more-row { display: flex; justify-content: center; margin-top: 18px; }
-.empty { color: var(--muted); padding: 24px 0; text-align: center; }
+/* Bảng diễn biến thứ hạng */
+.rank-matrix td.num { min-width: 52px; }
+.rank-matrix td.out { color: var(--grey-50); }
 
-/* ---------- Ghi chú nguồn dữ liệu ---------- */
-.source-note { display: grid; grid-template-columns: auto 1fr; gap: 14px; margin-top: 16px; padding: 18px 22px; border-radius: 20px; border: 1px solid var(--grey-20); background: var(--white); font-size: 14px; color: var(--grey); }
-.source-note svg { width: 22px; height: 22px; fill: var(--red); }
-.source-note h2 { font-size: 16px; margin-bottom: 4px; }
-.source-note p + p { margin-top: 4px; }
-.alert { margin-top: 20px; padding: 14px 18px; border-radius: 16px; background: var(--orange-10); border-left: 4px solid var(--orange); font-size: 14px; }
+/* Review */
+.review-chips { margin-bottom: 14px; }
+.review-title { margin-top: 10px; font-weight: 700; color: var(--grey); }
+.review-title + .review-text { margin-top: 2px; }
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
-.site-footer { background: var(--white); margin-top: 40px; }
-.footer-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; padding-block: 26px; font-size: 14px; }
-.footer-inner .brand-logo { height: 30px; }
-.footer-inner p { flex: 1 1 320px; color: var(--muted); }
-.footer-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; }
-.footer-links a { color: var(--grey); font-weight: 600; text-decoration: none; }
-.footer-links a:hover { color: var(--red); text-decoration: underline; }
-.footer-band { height: 8px; background: var(--band-lr); }
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-@media (max-width: 1100px) {
-  .f-bucket { margin-left: 0; }
+/* Vạch ngăn trước nhóm Khoảng ngày: chỉ hiện khi khung lọc đủ rộng để nằm trọn 1 hàng */
+@media (min-width: 1240px) {
+  .f-group.sep-wide { padding-right: 16px; border-right: 1px solid var(--line); }
 }
 @media (max-width: 760px) {
-  .range-all { flex: 1 1 auto; }
-  .date { flex: 1 1 190px; }
-  .header-inner { min-height: 60px; gap: 10px; }
-  .brand { gap: 10px; padding-block: 12px; }
-  .brand-logo { height: 26px; }
-  .brand-name { display: none; }
-  .nav { gap: 2px; }
-  .nav a { padding: 7px 8px; font-size: 14px; }
-  .nav .long { display: none; }
-  .nav .short { display: inline; }
-  .hero::after { width: 72%; opacity: .9; background-image: url("assets/kite-sm.jpg"); }
-  .hero-inner { grid-template-columns: 1fr; padding-block: 28px 92px; gap: 14px; }
-  .hero-icon { --s: 52px; }
-  .hero-lead { font-size: 16px; }
-  .filter-dock { margin-top: -60px; }
-  .filters { padding: 16px; gap: 12px; border-radius: 20px; }
-  .f-group { width: 100%; }
-  .seg { width: 100%; }
-  .seg button { flex: 1 1 auto; padding: 0 10px; }
-  .f-group select { width: 100%; }
-  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .tile { padding: 14px 16px; }
-  .tile .lab { font-size: 13px; }
-  .tile .val { font-size: 28px; }
-  .tile .foot { font-size: 13px; }
   .tile.top1 .val { font-size: 18px; }
   .tile.top1 img { width: 32px; height: 32px; }
-  .tile .meter { margin-left: 0; }
-  .meter svg { width: 16px; height: 16px; }
-  .meter-bg, .meter-fg { gap: 2px; }
-  .delta { font-size: 16px; }
-  .card { padding: 18px 16px 16px; border-radius: 20px; }
-  .card-actions { width: 100%; }
-  .chart-box, .chart-box.tall { height: 280px; }
-  .sec-head { flex-direction: column; gap: 2px; margin-top: 28px; }
-  .sec-head h2 { font-size: 20px; }
-  .rv time { margin-left: 0; }
 }
-@media (forced-colors: active) { .legend i, .chip i, .rv-stars i { forced-color-adjust: none; } }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 </style>
 </head>
 <body class="locked">
@@ -422,7 +71,7 @@ tr.hd .dbar span.b { background: var(--band-lr); }
   <div class="wrap header-inner">
     <a class="brand" href="/" aria-label="HDB Digital Hub, về trang chủ">
       <!-- Logo gốc của HDBank, không vẽ lại / chỉnh sửa -->
-      <img class="brand-logo" src="assets/logo.png" alt="HDBank" width="113" height="30">
+      <img class="brand-logo" src="https://hdb-digital.cloud/assets/logo.png" alt="HDBank" width="113" height="30">
       <span class="brand-name">Digital Hub</span>
     </a>
     <nav class="nav" aria-label="Công cụ">
@@ -450,10 +99,10 @@ tr.hd .dbar span.b { background: var(--band-lr); }
   <div class="wrap">
     <form class="card gate-card" id="gateForm">
       <h2>Nhập mật khẩu để xem</h2>
-      <p class="desc">Dữ liệu dashboard được mã hóa. Liên hệ đội Digital Marketing nếu chưa có mật khẩu.</p>
+      <p class="card-sub">Dữ liệu dashboard được mã hóa. Liên hệ đội Digital Marketing nếu chưa có mật khẩu.</p>
       <label for="gatePw">Mật khẩu</label>
       <input type="password" id="gatePw" autocomplete="current-password" required>
-      <label class="gate-remember"><input type="checkbox" id="gateRemember" checked> Ghi nhớ trên trình duyệt này</label>
+      <label class="check"><input type="checkbox" id="gateRemember" checked> Ghi nhớ trên trình duyệt này</label>
       <p class="gate-err" id="gateErr" role="alert" hidden>Mật khẩu chưa đúng, vui lòng nhập lại.</p>
       <button class="btn btn-red" type="submit" id="gateBtn">Xem dashboard</button>
     </form>
@@ -473,40 +122,39 @@ tr.hd .dbar span.b { background: var(--band-lr); }
           <button type="button" data-v="day">Ngày</button><button type="button" data-v="week">Tuần</button><button type="button" data-v="month">Tháng</button>
         </div>
       </div>
-      <div class="f-group">
+      <label class="f-group sep-wide">Kỳ đang xem
+        <select id="fBucket"></select>
+      </label>
+      <div class="f-group full">
         <span class="f-cap"><span id="lbRange">Khoảng ngày</span><span class="f-err" id="fRangeErr" role="alert" hidden>Ngày chưa hợp lệ, nhập dạng dd/mm/yyyy</span></span>
         <div class="range" id="fRange" role="group" aria-labelledby="lbRange">
-          <button class="range-all" type="button" data-v="30">30 ngày</button>
           <button class="range-all" type="button" data-v="all">Toàn bộ</button>
           <div class="date">
-            <label for="fFrom">Từ ngày</label>
-            <input id="fFrom" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="dd/mm/yyyy">
-            <button class="date-pick" type="button" aria-label="Chọn từ ngày trên lịch"><svg aria-hidden="true"><use href="#i-cal"></use></svg></button>
+            <label for="fFrom">Từ</label>
+            <input id="fFrom" type="text" aria-label="Từ ngày" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="dd/mm/yyyy">
+            <button class="icon-btn" type="button" aria-label="Chọn từ ngày trên lịch"><svg aria-hidden="true"><use href="#i-cal"></use></svg></button>
             <input class="date-native" type="date" tabindex="-1" aria-hidden="true">
           </div>
           <div class="date">
-            <label for="fTo">đến ngày</label>
-            <input id="fTo" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="dd/mm/yyyy">
-            <button class="date-pick" type="button" aria-label="Chọn đến ngày trên lịch"><svg aria-hidden="true"><use href="#i-cal"></use></svg></button>
+            <label for="fTo">đến</label>
+            <input id="fTo" type="text" aria-label="Đến ngày" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="dd/mm/yyyy">
+            <button class="icon-btn" type="button" aria-label="Chọn đến ngày trên lịch"><svg aria-hidden="true"><use href="#i-cal"></use></svg></button>
             <input class="date-native" type="date" tabindex="-1" aria-hidden="true">
           </div>
         </div>
       </div>
-      <label class="f-group f-bucket">Kỳ đang xem
-        <select id="fBucket"></select>
-      </label>
     </div>
   </div>
 </div>
 
-<main class="wrap">
+<main class="wrap stack" id="main">
 
-  <section class="kpis" id="kpis" aria-live="polite" aria-label="Chỉ số thứ hạng HDBank"></section>
+  <section class="kpis cols-4" id="kpis" aria-live="polite" aria-label="Chỉ số thứ hạng HDBank"></section>
 
   <section class="card" aria-labelledby="rankTitle">
     <header class="card-head">
       <h2 id="rankTitle">Thứ hạng HDBank theo lượt tải</h2>
-      <p class="desc">Hạng trong nhóm Banking theo lượt tải ước tính trong khoảng ngày đang chọn, hạng 1 nằm trên cùng. Chọn tối đa 5 đối thủ để so sánh. Tuần, tháng tính trọn theo lịch; kỳ có dấu * chưa đủ ngày.</p>
+      <p class="card-sub">Hạng trong nhóm Banking theo lượt tải ước tính trong khoảng ngày đang chọn, hạng 1 nằm trên cùng. Chọn tối đa 5 đối thủ để so sánh. Tuần, tháng tính trọn theo lịch; kỳ có dấu * chưa đủ ngày.</p>
     </header>
     <div class="chips" id="compare"></div>
     <div class="chart-box tall" style="margin-top:12px"><canvas id="rankChart" role="img" aria-label="Biểu đồ thứ hạng HDBank"></canvas></div>
@@ -518,7 +166,7 @@ tr.hd .dbar span.b { background: var(--band-lr); }
       <div class="card-actions">
         <button class="btn btn-outline btn-sm" id="csvRank" type="button"><svg aria-hidden="true"><use href="#i-download"></use></svg>Tải CSV</button>
       </div>
-      <p class="desc" id="tblNote"></p>
+      <p class="card-sub" id="tblNote"></p>
     </header>
     <div class="tbl-wrap"><table id="rankTbl"></table></div>
   </section>
@@ -529,9 +177,9 @@ tr.hd .dbar span.b { background: var(--band-lr); }
       <div class="card-actions">
         <button class="btn btn-outline btn-sm" id="csvMatrix" type="button"><svg aria-hidden="true"><use href="#i-download"></use></svg>Tải CSV</button>
       </div>
-      <p class="desc">Hạng của top 25 (theo kỳ đang xem) qua tối đa 12 kỳ trong khoảng đã chọn. "–" là ngoài nhóm có lượt tải.</p>
+      <p class="card-sub">Hạng của top 25 (theo kỳ đang xem) qua tối đa 12 kỳ trong khoảng đã chọn. "–" là ngoài nhóm có lượt tải.</p>
     </header>
-    <div class="tbl-wrap"><table id="matrixTbl" class="matrix"></table></div>
+    <div class="tbl-wrap"><table id="matrixTbl" class="sticky-col rank-matrix"></table></div>
   </section>
 
   <div class="sec-head">
@@ -545,19 +193,19 @@ tr.hd .dbar span.b { background: var(--band-lr); }
     <section class="card" aria-labelledby="h-avg">
       <header class="card-head">
         <h2 id="h-avg">Điểm trung bình review mới</h2>
-        <p class="desc">Trung bình số sao của các review viết trong từng kỳ (khác với rating tổng trên store).</p>
+        <p class="card-sub">Trung bình số sao của các review viết trong từng kỳ (khác với rating tổng trên store).</p>
       </header>
       <div class="chart-box"><canvas id="revAvgChart" role="img" aria-label="Điểm trung bình review mới"></canvas></div>
     </section>
     <section class="card" aria-labelledby="h-cnt">
       <header class="card-head">
         <h2 id="h-cnt">Số review mới theo mức sao</h2>
-        <p class="desc">Số review HDBank nhận được trong từng kỳ.</p>
+        <p class="card-sub">Số review HDBank nhận được trong từng kỳ.</p>
       </header>
       <div class="legend">
-        <span><i style="background:var(--pos)"></i>Tích cực (4–5★)</span>
-        <span><i style="background:var(--mid)"></i>Trung tính (3★)</span>
-        <span><i style="background:var(--neg)"></i>Tiêu cực (1–2★)</span>
+        <span><i style="background:var(--s5)"></i>Tích cực (4–5★)</span>
+        <span><i style="background:var(--s3)"></i>Trung tính (3★)</span>
+        <span><i style="background:var(--s1)"></i>Tiêu cực (1–2★)</span>
       </div>
       <div class="chart-box"><canvas id="revCntChart" role="img" aria-label="Số review mới theo mức sao"></canvas></div>
     </section>
@@ -566,7 +214,7 @@ tr.hd .dbar span.b { background: var(--band-lr); }
   <section class="card" id="storeRatingCard" aria-labelledby="h-store">
     <header class="card-head">
       <h2 id="h-store">Rating tổng trên store</h2>
-      <p class="desc">Mỗi lần chạy cập nhật sẽ ghi lại rating tổng của ngày hôm đó.</p>
+      <p class="card-sub">Mỗi lần chạy cập nhật sẽ ghi lại rating tổng của ngày hôm đó.</p>
     </header>
     <div class="chart-box"><canvas id="storeChart" role="img" aria-label="Rating tổng trên store"></canvas></div>
   </section>
@@ -574,14 +222,14 @@ tr.hd .dbar span.b { background: var(--band-lr); }
   <section class="card" aria-labelledby="h-rv">
     <header class="card-head">
       <h2 id="h-rv">Review gần đây</h2>
-      <p class="desc" id="rvNote"></p>
+      <p class="card-sub" id="rvNote"></p>
     </header>
-    <div class="chips" id="fStar" role="group" aria-label="Lọc review theo số sao">
+    <div class="chips review-chips" id="fStar" role="group" aria-label="Lọc review theo số sao">
       <button class="chip" type="button" data-v="all">Tất cả</button>
       <span class="chip-sep" aria-hidden="true"></span>
-      <button class="chip" type="button" data-v="pos"><i style="background:var(--pos)"></i>4–5★</button>
-      <button class="chip" type="button" data-v="mid"><i style="background:var(--mid)"></i>3★</button>
-      <button class="chip" type="button" data-v="neg"><i style="background:var(--neg)"></i>1–2★</button>
+      <button class="chip" type="button" data-v="pos"><span class="swatch" style="background:var(--s5)"></span>4–5★</button>
+      <button class="chip" type="button" data-v="mid"><span class="swatch" style="background:var(--s3)"></span>3★</button>
+      <button class="chip" type="button" data-v="neg"><span class="swatch" style="background:var(--s1)"></span>1–2★</button>
     </div>
     <div class="reviews" id="reviews"></div>
     <div class="more-row"><button class="btn btn-outline" id="rvMore" type="button" hidden>Xem thêm</button></div>
@@ -599,7 +247,7 @@ tr.hd .dbar span.b { background: var(--band-lr); }
 
 <footer class="site-footer">
   <div class="wrap footer-inner">
-    <img class="brand-logo" src="assets/logo.png" alt="HDBank" width="113" height="30">
+    <img class="brand-logo" src="https://hdb-digital.cloud/assets/logo.png" alt="HDBank" width="113" height="30">
     <p>HDB Digital Hub là trang nội bộ của đội Digital Marketing HDBank. Số liệu lượt tải và rating lấy từ Sensor Tower.</p>
     <ul class="footer-links">
       <li>Hotline <a href="tel:19006060">1900 6060</a></li>
@@ -812,9 +460,11 @@ function compute() {
     const full = shown.filter(b => !b.partial);
     S.bucket = (full.length ? full[full.length - 1] : shown[shown.length - 1]).key;
   }
+  // Nhãn ngắn để khung lọc vừa 1 hàng: tuần ghi "dd/mm – dd/mm", kỳ chưa đủ ngày có dấu * như biểu đồ
+  const optLabel = k => S.gran === "week" ? `${ddmm(k)} – ${ddmm(addDays(k, 6))}` : bucketLabel(k, S.gran, true);
   const sel = $("#fBucket");
   sel.innerHTML = shown.slice().reverse().map(b =>
-    `<option value="${b.key}">${bucketLabel(b.key, S.gran, true)}${b.partial ? " (chưa đủ kỳ)" : ""}</option>`).join("");
+    `<option value="${b.key}">${optLabel(b.key)}${b.partial ? "*" : ""}</option>`).join("");
   sel.value = S.bucket;
 }
 const bIndex = k => M.buckets.findIndex(b => b.key === k);
@@ -859,11 +509,11 @@ function renderKpis() {
   }
   const top = b.sorted[0], te = top && M.ents[top[0]];
   $("#kpis").innerHTML =
-    tile({ cls: "band", lab: `Hạng HDBank · ${platName()}`, val: rank ? "#" + rank : "–", unit: `/ ${b.sorted.length} app`, badge: r1.badge, foot: `${bucketLabel(b.key, S.gran, true)} · ${r1.foot}` }) +
-    tile({ cls: "band", lab: "Lượt tải HDBank trong kỳ", val: fmt(u), badge: r2.badge, foot: r2.foot }) +
-    tile({ cls: "band", lab: "Thị phần lượt tải nhóm Banking", val: `${dec(share * 100, 1)}<small>%</small>`, badge: shareBadge, foot: shareFoot }) +
+    tile({ cls: "is-main", lab: `Hạng HDBank · ${platName()}`, val: rank ? "#" + rank : "–", unit: `/ ${b.sorted.length} app`, badge: r1.badge, foot: `${bucketLabel(b.key, S.gran, true)} · ${r1.foot}` }) +
+    tile({ cls: "is-main", lab: "Lượt tải HDBank trong kỳ", val: fmt(u), badge: r2.badge, foot: r2.foot }) +
+    tile({ cls: "is-main", lab: "Thị phần lượt tải nhóm Banking", val: `${dec(share * 100, 1)}<small>%</small>`, badge: shareBadge, foot: shareFoot }) +
     (te ? tile({
-      cls: "band top1", lab: "Dẫn đầu lượt tải trong kỳ", title: te.name,
+      cls: "is-main top1", lab: "Dẫn đầu lượt tải trong kỳ", title: te.name,
       val: `${te.icon ? `<img src="${esc(te.icon)}" alt="" loading="lazy">` : ""}<span class="nm">${esc(shortName(te.name))}</span>`,
       foot: `${fmt(top[1])} lượt · gấp ${u ? dec(top[1] / u, 1) : "–"} lần HDBank`
     }) : "");
@@ -894,7 +544,7 @@ function reviewTile() {
 /* ---------- biểu đồ ---------- */
 const charts = {};
 const tipStyle = () => ({
-  backgroundColor: "#FFFFFF", titleColor: css("--grey"), bodyColor: css("--grey"), borderColor: css("--grid"), borderWidth: 1,
+  backgroundColor: css("--white"), titleColor: css("--grey"), bodyColor: css("--grey"), borderColor: css("--grid"), borderWidth: 1,
   cornerRadius: 12, padding: 10, boxPadding: 4, usePointStyle: true,
   titleFont: { weight: "600", size: 13 }, bodyFont: { size: 13 }
 });
@@ -947,11 +597,11 @@ const shortName = n => String(n || "").replace(/ Mobile Banking| SmartBanking| M
    Tối đa 5 app. Mỗi app có màu + kiểu nét riêng (không chỉ dựa vào màu), cộng nhãn tên ở cuối đường. */
 const MAX_CMP = 5;
 const CMP_STYLES = [
-  { c: "#58595B", dash: [] },             // xám HDBank, nét liền
-  { c: "#FAA61A", dash: [6, 4] },         // cam, nét đứt
-  { c: "#9B9B9D", dash: [2, 3] },         // xám nhạt, chấm
-  { c: "#E0A100", dash: [10, 3, 2, 3] },  // vàng đậm, gạch-chấm
-  { c: "#58595B", dash: [12, 5] }         // xám đậm, gạch dài
+  { c: css("--c1"), dash: [] },             // đối thủ 1: xám, nét liền
+  { c: css("--c2"), dash: [6, 4] },         // đối thủ 2: cam, nét đứt
+  { c: css("--c3"), dash: [2, 3] },         // đối thủ 3: xám 70%, chấm
+  { c: css("--c4"), dash: [10, 3, 2, 3] },  // đối thủ 4: cam vàng, gạch-chấm
+  { c: css("--c1"), dash: [12, 5] }         // đối thủ 5: xám, gạch dài
 ];
 const lineSvg = (c, dash, w = 3) => `<svg class="ln" viewBox="0 0 18 6" aria-hidden="true"><line x1="0" y1="3" x2="18" y2="3" stroke="${c}" stroke-width="${w}" stroke-dasharray="${(dash || []).join(" ")}"/></svg>`;
 /* Hạng theo tổng lượt tải trong cả khoảng ngày đang chọn: dùng cho danh sách chọn và "Top 5" */
@@ -979,22 +629,22 @@ function setCompare(list) {
 let cmpOpen = false, cmpQuery = "";
 function renderCompare() {
   const keepScroll = document.getElementById("cmpList")?.scrollTop || 0;   // giữ vị trí cuộn khi tick chọn
-  const chips =[`<span class="chip on">${lineSvg(css("--hd"), [], 4)}HDBank</span>`]
+  const chips =[`<span class="chip is-on">${lineSvg(css("--c-hd"), [], 4)}HDBank</span>`]
     .concat(S.compare.map((k, i) => {
       const nm = esc(shortName(M.ents[k]?.name || k)), st = CMP_STYLES[i];
-      return `<span class="chip">${lineSvg(st.c, st.dash)}${nm}<button class="chip-x" type="button" data-rm="${esc(k)}" aria-label="Bỏ so sánh ${nm}"><svg aria-hidden="true"><use href="#i-x"></use></svg></button></span>`;
+      return `<span class="chip">${lineSvg(st.c, st.dash)}${nm}<button class="icon-btn" type="button" data-rm="${esc(k)}" aria-label="Bỏ so sánh ${nm}"><svg aria-hidden="true"><use href="#i-x"></use></svg></button></span>`;
     }));
-  $("#compare").innerHTML = chips.join("") + `<span class="cmp-wrap">
+  $("#compare").innerHTML = chips.join("") + `<span class="pop-wrap">
     <button class="btn btn-outline btn-sm" id="cmpBtn" type="button" aria-expanded="${cmpOpen}" aria-controls="cmpPop"><svg aria-hidden="true"><use href="#i-plus"></use></svg>Chọn đối thủ (${S.compare.length}/${MAX_CMP})</button>
-    <div class="cmp-pop" id="cmpPop" ${cmpOpen ? "" : "hidden"} role="dialog" aria-label="Chọn đối thủ để so sánh">
+    <div class="popover" id="cmpPop" ${cmpOpen ? "" : "hidden"} role="dialog" aria-label="Chọn đối thủ để so sánh">
       <input type="search" id="cmpSearch" placeholder="Tìm app ngân hàng…" autocomplete="off" value="${esc(cmpQuery)}">
-      <div class="cmp-quick">
+      <div class="pop-quick">
         <button type="button" data-q="near">Sát hạng HDBank</button>
         <button type="button" data-q="top">Top ${MAX_CMP}</button>
         <button type="button" data-q="none">Bỏ chọn hết</button>
       </div>
-      <ul class="cmp-list" id="cmpList"></ul>
-      <p class="cmp-foot">Xếp theo tổng lượt tải từ ${dmy(M.from)} đến ${dmy(M.to)} · chọn tối đa ${MAX_CMP} app</p>
+      <ul class="pick-list" id="cmpList"></ul>
+      <p class="pop-foot">Xếp theo tổng lượt tải từ ${dmy(M.from)} đến ${dmy(M.to)} · chọn tối đa ${MAX_CMP} app</p>
     </div></span>`;
   $("#compare").querySelectorAll("[data-rm]").forEach(btn => btn.onclick = () => setCompare(S.compare.filter(k => k !== btn.dataset.rm)));
   $("#cmpBtn").onclick = e => { e.stopPropagation(); cmpOpen = !cmpOpen; renderCompare(); if (cmpOpen) $("#cmpSearch").focus(); };
@@ -1009,8 +659,8 @@ function renderCompare() {
     const rows = list.map((x, i) => [x[0], i + 1]).filter(([k]) => k !== M.hd && (!q || (M.ents[k].name || "").toLowerCase().includes(q)));
     $("#cmpList").innerHTML = rows.length ? rows.slice(0, 150).map(([k, rk]) => {
       const e = M.ents[k], on = S.compare.includes(k), dis = full && !on;
-      return `<li><label class="${dis ? "dis" : ""}"><input type="checkbox" value="${esc(k)}" ${on ? "checked" : ""} ${dis ? "disabled" : ""}>
-        <span class="rk">#${rk}</span>${e.icon ? `<img src="${esc(e.icon)}" alt="" loading="lazy">` : ""}<span class="nm">${esc(e.name)}</span></label></li>`;
+      return `<li><label class="${dis ? "is-disabled" : ""}"><input type="checkbox" value="${esc(k)}" ${on ? "checked" : ""} ${dis ? "disabled" : ""}>
+        <span class="meta">#${rk}</span>${e.icon ? `<img src="${esc(e.icon)}" alt="" loading="lazy">` : ""}<span class="nm">${esc(e.name)}</span></label></li>`;
     }).join("") : `<li class="empty">Không tìm thấy app phù hợp.</li>`;
   };
   fillList();
@@ -1033,13 +683,13 @@ function renderRankChart() {
   renderCompare();
   if (cmpOpen) { const s = $("#cmpSearch"); s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
   const labels = M.shown.map(b => bucketLabel(b.key, S.gran) + (b.partial ? "*" : ""));
-  const series = [[M.hd, { c: css("--hd"), dash: [] }], ...S.compare.map((k, i) => [k, CMP_STYLES[i]])];
+  const series = [[M.hd, { c: css("--c-hd"), dash: [] }], ...S.compare.map((k, i) => [k, CMP_STYLES[i]])];
   const datasets = series.map(([k, st]) => ({
     label: M.ents[k]?.name || k, short: k === M.hd ? "HDBank" : shortName(M.ents[k]?.name), isHd: k === M.hd,
     data: M.shown.map(b => b.rank[k] ?? null),
     borderColor: st.c, backgroundColor: st.c, borderWidth: k === M.hd ? 3 : 2,
     borderDash: st.dash,
-    pointRadius: M.shown.length > 40 ? 0 : 3, pointHoverRadius: 5, pointBorderColor: "#FFFFFF", pointBorderWidth: 2,
+    pointRadius: M.shown.length > 40 ? 0 : 3, pointHoverRadius: 5, pointBorderColor: css("--white"), pointBorderWidth: 2,
     tension: 0, spanGaps: true, order: k === M.hd ? 0 : 1
   }));
   const ranks = datasets.flatMap(d => d.data).filter(v => v != null);
@@ -1079,15 +729,15 @@ function renderRankTable() {
   $("#tblTitle").textContent = `Bảng xếp hạng app Banking · ${bucketLabel(b.key, S.gran, true)}`;
   $("#tblNote").textContent = `${b.sorted.length} app Banking có lượt tải trong kỳ · tổng ${fmt(b.sum)} lượt tải${b.partial ? " · kỳ chưa đủ ngày" : ""}. Rating là rating tổng trên store mới nhất.`;
   const mv = r => {
-    if (r.prank == null) return `<span class="mv new">Mới</span>`;
+    if (r.prank == null) return `<span class="tag-new">Mới</span>`;
     const d = r.prank - r.rank;
     return d > 0 ? `<span class="mv up">▲${d}</span>` : d < 0 ? `<span class="mv down">▼${-d}</span>` : `<span class="mv flat">–</span>`;
   };
   $("#rankTbl").innerHTML = `<thead><tr><th class="num">Hạng</th><th>±</th><th>Ứng dụng</th><th class="num">Lượt tải</th><th class="num">So kỳ trước</th><th class="num">Thị phần</th>${showIos ? '<th class="num">Rating iOS</th>' : ""}${showAnd ? '<th class="num">Rating Android</th>' : ""}</tr></thead>
-  <tbody>${rows.map(r => `<tr class="${r.k === M.hd ? "hd" : ""}">
+  <tbody>${rows.map(r => `<tr class="${r.k === M.hd ? "is-hd" : ""}">
     <td class="num">${r.rank}</td><td>${mv(r)}</td>
-    <td><div class="app">${r.e.icon ? `<img src="${esc(r.e.icon)}" alt="" loading="lazy">` : ""}<div><div class="app-name">${esc(r.e.name)}</div><div class="pub">${esc(r.e.pub)}</div></div></div></td>
-    <td class="num"><div class="dbar"><span class="b" style="width:${Math.max(2, r.u / maxU * 110)}px"></span>${fmt(r.u)}</div></td>
+    <td><div class="entity">${r.e.icon ? `<img src="${esc(r.e.icon)}" alt="" loading="lazy">` : ""}<div><div class="app-name">${esc(r.e.name)}</div><div class="pub">${esc(r.e.pub)}</div></div></div></td>
+    <td class="num"><div class="cell-bar"><span class="b" style="width:${Math.max(2, r.u / maxU * 110)}px"></span>${fmt(r.u)}</div></td>
     <td class="num">${r.pu ? `<span class="${r.u >= r.pu ? "up" : "down"}">${pct(r.u / r.pu - 1)}</span>` : "–"}</td>
     <td class="num">${dec(r.share * 100, 1)}%</td>
     ${showIos ? `<td class="num">${ratingCell(r.e, "ios")}</td>` : ""}${showAnd ? `<td class="num">${ratingCell(r.e, "android")}</td>` : ""}
@@ -1098,7 +748,7 @@ function renderMatrix() {
   const cols = M.shown.slice(Math.max(0, i - 11), i + 1);
   const rows = rankRows();
   $("#matrixTbl").innerHTML = `<thead><tr><th>Ứng dụng</th>${cols.map(b => `<th class="num">${bucketLabel(b.key, S.gran)}${b.partial ? "*" : ""}</th>`).join("")}</tr></thead>
-  <tbody>${rows.map(r => `<tr class="${r.k === M.hd ? "hd" : ""}"><td>${esc(shortName(r.e.name))}</td>${cols.map(b => b.rank[r.k] != null ? `<td class="num">${b.rank[r.k]}</td>` : `<td class="num out">–</td>`).join("")}</tr>`).join("")}</tbody>`;
+  <tbody>${rows.map(r => `<tr class="${r.k === M.hd ? "is-hd" : ""}"><td>${esc(shortName(r.e.name))}</td>${cols.map(b => b.rank[r.k] != null ? `<td class="num">${b.rank[r.k]}</td>` : `<td class="num out">–</td>`).join("")}</tr>`).join("")}</tbody>`;
 }
 function downloadCsv(name, rows) {
   const txt = "﻿" + rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
@@ -1134,18 +784,18 @@ function renderReviewCharts() {
   const vals = M.shown.map(b => agg[b.key]);
   draw("revAvgChart", {
     type: "line",
-    data: { labels, datasets: [{ label: "Điểm TB review mới", data: vals.map(a => a.n ? +(a.s / a.n).toFixed(2) : null), borderColor: css("--hd"), backgroundColor: css("--hd"), borderWidth: 2.5, pointRadius: S.gran === "day" ? 2 : 3, pointHoverRadius: 5, pointBorderColor: "#FFFFFF", pointBorderWidth: S.gran === "day" ? 0 : 2, spanGaps: false }] },
+    data: { labels, datasets: [{ label: "Điểm TB review mới", data: vals.map(a => a.n ? +(a.s / a.n).toFixed(2) : null), borderColor: css("--c-hd"), backgroundColor: css("--c-hd"), borderWidth: 2.5, pointRadius: S.gran === "day" ? 2 : 3, pointHoverRadius: 5, pointBorderColor: css("--white"), pointBorderWidth: S.gran === "day" ? 0 : 2, spanGaps: false }] },
     options: baseOpts({ min: 1, max: 5, ticks: { color: css("--grey-70"), stepSize: 1, callback: v => v + "★" } }, {
       plugins: { legend: { display: false }, tooltip: Object.assign(tipStyle(), { callbacks: { label: c => ` ${c.raw == null ? "Không có review" : c.raw.toString().replace(".", ",") + "★"} · ${vals[c.dataIndex].n} review` } }) }
     })
   });
-  const gap = { borderColor: "#FFFFFF", borderWidth: { top: 2 }, borderSkipped: "bottom" };
+  const gap = { borderColor: css("--white"), borderWidth: { top: 2 }, borderSkipped: "bottom" };
   draw("revCntChart", {
     type: "bar",
     data: { labels, datasets: [
-      Object.assign({ label: "Tiêu cực (1–2★)", data: vals.map(a => a.neg), backgroundColor: css("--neg") }, gap),
-      Object.assign({ label: "Trung tính (3★)", data: vals.map(a => a.mid), backgroundColor: css("--mid") }, gap),
-      Object.assign({ label: "Tích cực (4–5★)", data: vals.map(a => a.pos), backgroundColor: css("--pos"), borderRadius: { topLeft: 4, topRight: 4 } }, gap)
+      Object.assign({ label: "Tiêu cực (1–2★)", data: vals.map(a => a.neg), backgroundColor: css("--s1") }, gap),
+      Object.assign({ label: "Trung tính (3★)", data: vals.map(a => a.mid), backgroundColor: css("--s3") }, gap),
+      Object.assign({ label: "Tích cực (4–5★)", data: vals.map(a => a.pos), backgroundColor: css("--s5"), borderRadius: { topLeft: 4, topRight: 4 } }, gap)
     ] },
     options: baseOpts({ stacked: true, beginAtZero: true, ticks: { color: css("--grey-70"), precision: 0 } }, {
       scales: Object.assign(baseOpts({}).scales, { x: Object.assign(baseOpts({}).scales.x, { stacked: true }), y: { stacked: true, beginAtZero: true, grid: { color: css("--grid") }, border: { display: false }, ticks: { color: css("--grey-70"), precision: 0 } } })
@@ -1158,12 +808,12 @@ function renderReviewCharts() {
   $("#storeRatingCard").hidden = !enough;
   if (enough) {
     const ds = [...new Set(hist.flat().map(x => x[0]))].sort();
-    const colors = { ios: "--hd", android: "--c1" };
+    const colors = { ios: "--c-hd", android: "--c1" };
     draw("storeChart", {
       type: "line",
       data: { labels: ds.map(ddmm), datasets: oses.map((os, i) => {
         const m = Object.fromEntries(hist[i].map(x => [x[0], x[3]]));
-        return { label: os === "ios" ? "App Store" : "Google Play", data: ds.map(d => m[d] ?? null), borderColor: css(colors[os]), backgroundColor: css(colors[os]), borderWidth: 2.5, pointRadius: 3, pointBorderColor: "#FFFFFF", pointBorderWidth: 2, spanGaps: true };
+        return { label: os === "ios" ? "App Store" : "Google Play", data: ds.map(d => m[d] ?? null), borderColor: css(colors[os]), backgroundColor: css(colors[os]), borderWidth: 2.5, pointRadius: 3, pointBorderColor: css("--white"), pointBorderWidth: 2, spanGaps: true };
       }) },
       options: baseOpts({ ticks: { color: css("--grey-70"), callback: v => dec(v, 2) + "★" } }, {
         plugins: { legend: { display: oses.length > 1, position: "bottom", labels: { color: css("--grey"), boxWidth: 10, usePointStyle: true, pointStyle: "circle" } }, tooltip: tipStyle() }
@@ -1178,14 +828,14 @@ function renderReviews(reset) {
   if (S.star === "mid") rv = rv.filter(r => r[2] === 3);
   if (S.star === "pos") rv = rv.filter(r => r[2] >= 4);
   $("#rvNote").textContent = `${fmt(rv.length)} review của HDBank từ ${dmy(M.from)} đến ${dmy(M.to)} · ${platName()} · mới nhất trước`;
-  $("#reviews").innerHTML = rv.length ? rv.slice(0, S.rvShow).map(r => `<article class="rv">
-    <div class="rv-head">
-      <span class="rv-stars"><i style="background:var(--s${r[2]})"></i>${r[2]}★</span>
+  $("#reviews").innerHTML = rv.length ? rv.slice(0, S.rvShow).map(r => `<article class="review">
+    <div class="review-head">
+      <span class="review-stars"><i style="background:var(--s${r[2]})"></i>${r[2]}★</span>
       <span class="who">${r[1] === "ios" ? "App Store" : "Google Play"}</span>
       <time datetime="${esc(r[0])}">${dmy(r[0])}</time>
     </div>
-    ${r[3] ? `<div class="rv-title">${esc(r[3])}</div>` : ""}<p class="txt">${esc(r[4])}</p>
-    ${r[5] ? `<div class="ver">Phiên bản ${esc(r[5])}</div>` : ""}
+    ${r[3] ? `<div class="review-title">${esc(r[3])}</div>` : ""}<p class="review-text">${esc(r[4])}</p>
+    ${r[5] ? `<div class="review-meta">Phiên bản ${esc(r[5])}</div>` : ""}
   </article>`).join("")
     : `<div class="empty">Không có review phù hợp.</div>`;
   const more = $("#rvMore");
@@ -1199,7 +849,7 @@ function seg(id, key, onChange) {
   const el = $(id);
   const paint = () => el.querySelectorAll("button[data-v]").forEach(b => {
     const on = b.dataset.v === S[key];
-    b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+    b.setAttribute("aria-pressed", on);
   });
   el.querySelectorAll("button[data-v]").forEach(b => b.onclick = () => { S[key] = b.dataset.v; store.set(key, S[key]); paint(); onChange(); });
   paint();
@@ -1211,7 +861,7 @@ function renderAll(resetCompare) {
 }
 /* ---------- khoảng ngày: nút nhanh + ô Từ ngày / đến ngày (gõ dd/mm/yyyy hoặc chọn trên lịch) ---------- */
 const DATE_IDS = ["fFrom", "fTo"];
-const dateParts = id => { const box = document.getElementById(id).parentElement; return { box, text: box.querySelector("input[type=text]"), pick: box.querySelector(".date-pick"), native: box.querySelector(".date-native") }; };
+const dateParts = id => { const box = document.getElementById(id).parentElement; return { box, text: box.querySelector("input[type=text]"), pick: box.querySelector(".icon-btn"), native: box.querySelector(".date-native") }; };
 function parseDMY(v) {
   const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(v).trim());
   if (!m) return null;
@@ -1272,7 +922,7 @@ seg("#fStar", "star", () => renderReviews(true));
 $("#fBucket").onchange = e => { S.bucket = e.target.value; renderKpis(); renderRankTable(); renderMatrix(); renderCompare(); };
 
 if (typeof Chart === "undefined") {
-  $("main").insertAdjacentHTML("afterbegin", `<div class="alert">Không tải được thư viện biểu đồ (cần kết nối internet). Bảng số liệu vẫn hiển thị.</div>`);
+  $("main").insertAdjacentHTML("afterbegin", `<div class="notice is-info"><p>Không tải được thư viện biểu đồ (cần kết nối internet). Bảng số liệu vẫn hiển thị.</p></div>`);
   window.Chart = function () { return { destroy() {} }; };
 } else {
   Chart.defaults.font.family = css("--font-body");

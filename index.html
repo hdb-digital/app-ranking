@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
-<link rel="stylesheet" href="https://hdb-digital.cloud/assets/hdb-ui.css?v=1.1">
+<link rel="stylesheet" href="https://hdb-digital.cloud/assets/hdb-ui.css?v=1.2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
 /* Chỉ CSS riêng của trang này (thành phần chưa có trong hdb-ui.css) */
@@ -74,13 +74,7 @@ tr.is-hd .app-name { color: var(--red); }
       <img class="brand-logo" src="https://hdb-digital.cloud/assets/logo.png" alt="HDBank" width="113" height="30">
       <span class="brand-name">Digital Hub</span>
     </a>
-    <nav class="nav" aria-label="Công cụ">
-      <a href="/ggmap-dashboard/">Đánh giá<span class="long"> Google Maps</span></a>
-      <a href="/app-ranking/" aria-current="page"><span class="long">Xếp hạng app</span><span class="short">Xếp hạng</span></a>
-      <a href="/social-follower/"><span class="long">Theo dõi follower</span><span class="short">Follower</span></a>
-      <a href="/ggmap-qrcode/"><span class="long">Tạo mã QR</span><span class="short">Mã QR</span></a>
-      <a href="/bang-ten/"><span class="long">Tạo bảng tên</span><span class="short">Bảng tên</span></a>
-    </nav>
+    <nav class="nav" data-hdb-nav aria-label="Công cụ"></nav>
   </div>
 </header>
 
@@ -935,5 +929,6 @@ let wasNarrow = narrow();
 window.addEventListener("resize", () => { if (narrow() !== wasNarrow) { wasNarrow = narrow(); renderRankChart(); } });
 } // hết start(D)
 </script>
+<script src="https://hdb-digital.cloud/assets/hdb-nav.js?v=1.2" defer></script>
 </body>
 </html>
